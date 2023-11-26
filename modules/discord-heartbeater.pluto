@@ -1,0 +1,17 @@
+local heartbeater = {}
+
+local last_sent = 0
+function heartbeater.kickOff(ws, interval)
+	scheduler.addloop(function()
+		if heartbeater.last_seq and os.millis() - last_sent > interval then
+			--print("sending heartbeat")
+			ws:wsSend(json.encode({
+				op = 1,
+				d = heartbeater.last_seq
+			}))
+			last_sent = os.millis()
+		end
+	end)
+end
+
+return heartbeater

@@ -1,0 +1,2 @@
+# Count .pluto files as Lua
+*.pluto linguist-language=Lua

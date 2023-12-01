@@ -1,8 +1,14 @@
 local bot = new (require"discord-bot") ("YOUR TOKEN HERE")
 
 bot:onMessage(function(msg)
-	if msg:mentionsMe() then
-		print("I've been mentioned!")
+	if msg.author.bot then
+		return
+	end
+	local is_dm = not msg.guild_id
+	if is_dm then
+		msg.channel:sendMessage("Thanks for the DM!")
+	elseif msg:mentionsMe() then
+		msg:reply("Thanks for the ping!")
 	end
 end)
 

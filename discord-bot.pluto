@@ -122,7 +122,7 @@ return class
 
 	function sendRequest(method, endpoint)
 		endpoint = "https://discord.com/api/v10"..endpoint
-		print($"[HTTP] Sending {method} request to ${endpoint}")
+		print($"[HTTP] Sending {method} request to {endpoint}")
 		local response = http.request({
 			["method"] = method,
 			["url"] = endpoint,

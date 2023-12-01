@@ -46,6 +46,15 @@ local class DiscordMessage
 		end
 		return false
 	end
+
+	function reply(content)
+		self.client:sendRequest("POST", $"/channels/{self.channel.id}/messages", {
+			["content"] = content,
+			["message_reference"] = {
+				["message_id"] = self.id
+			}
+		})
+	end
 end
 
 local function new_with_data(bot, clazz, data)

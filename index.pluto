@@ -1,0 +1,9 @@
+local bot = new (require"discord-bot") ("YOUR TOKEN HERE")
+
+bot:onMessage(function(msg)
+	if msg:mentionsMe() then
+		print("I've been mentioned!")
+	end
+end)
+
+bot:run()

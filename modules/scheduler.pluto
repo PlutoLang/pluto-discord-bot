@@ -1,8 +1,8 @@
 local coros = {}
 export function add(f)
-    local coro = coroutine.create(f)
-    table.insert(coros, coro)
-    coroutine.resume(coro)
+	local coro = coroutine.create(f)
+	table.insert(coros, coro)
+	coroutine.resume(coro)
 end
 export function addloop(f)
 	return add(function()
@@ -13,17 +13,17 @@ export function addloop(f)
 	end)
 end
 export function run()
-    local all_dead
-    repeat
-        all_dead = true
-        for i, coro in coros do
-            if coroutine.status(coro) == "suspended" then
-                coroutine.xresume(coro)
-                all_dead = false
-            elseif coroutine.status(coro) == "dead" then
-                coros[i] = nil
-            end
-        end
-        os.sleep(1)
-    until all_dead
+	local all_dead
+	repeat
+		all_dead = true
+		for i, coro in coros do
+			if coroutine.status(coro) == "suspended" then
+				coroutine.xresume(coro)
+				all_dead = false
+			elseif coroutine.status(coro) == "dead" then
+				coros[i] = nil
+			end
+		end
+		os.sleep(1)
+	until all_dead
 end

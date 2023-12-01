@@ -8,6 +8,7 @@ package.cpath = ""
 json = require "json"
 
 package.path = "modules\\?.pluto"
+http = require "http"
 scheduler = require "scheduler"
 
 local heartbeater = require "discord-heartbeater"
@@ -16,6 +17,17 @@ soup_scheduler = soup.Scheduler.new()
 scheduler.addloop(function()
 	soup_scheduler:tick()
 end)
+
+local class DiscordChannelId
+	__name = "DiscordChannelId"
+
+	function __construct(public client, public id)
+	end
+
+	function sendTyping()
+		self.client:sendRequest("POST", $"/channels/{self.id}/typing")
+	end
+end
 
 local class DiscordMessage
 	__name = "DiscordMessage"
@@ -42,11 +54,13 @@ end
 return class
 	__name = "DiscordBot"
 
+	private token = nil
 	user = {}
 
 	private on_message = nil
 
 	function __construct(token)
+		self.token = token
 		scheduler.add(function()
 			print("Connecting to gateway.discord.gg...")
 			local ewsct = soup.EstablishWebSocketConnectionTask.new("wss://gateway.discord.gg/")
@@ -85,7 +99,11 @@ return class
 							break
 						case "MESSAGE_CREATE":
 							if self.on_message then
-								self.on_message(new_with_data(self, DiscordMessage, data.d))
+								local msg = new_with_data(self, DiscordMessage, data.d)
+								msg.channel = new DiscordChannelId(self, data.d.channel_id)
+								scheduler.add(function()
+									self.on_message(msg)
+								end)
 							end
 							break
 					end
@@ -100,5 +118,21 @@ return class
 
 	static function run()
 		scheduler.run()
+	end
+
+	function sendRequest(method, endpoint)
+		endpoint = "https://discord.com/api/v10"..endpoint
+		print($"[HTTP] Sending {method} request to ${endpoint}")
+		local response = http.request({
+			["method"] = method,
+			["url"] = endpoint,
+			["headers"] = {
+				["Authorization"] = $"Bot {self.token}",
+				["User-Agent"] = "DiscordBot (Please momma no spaghetti)",
+			}
+		})
+		if response ~= "" then
+			print($"[HTTP] Response: {response}")
+		end
 	end
 end

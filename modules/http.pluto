@@ -1,0 +1,25 @@
+local http = {}
+function http.request(options)
+	if type(options) == "string" then
+		options = {
+			["url"] = options
+		}
+	end
+	local hr = soup.HttpRequest.new(options.url)
+	if options.method ~= "GET" then
+		assert(options.method == "POST")
+		hr:setPayload("")
+	end
+	if options.headers then
+		for k, v in options.headers do
+			hr:addHeader(k, v)
+		end
+	end
+	local hrt = soup.HttpRequestTask.newFromRequest(hr)
+	soup_scheduler:add(hrt)
+	while not hrt:isWorkDone() do
+		coroutine.yield()
+	end
+	return hrt:getResponseBodyCStr()
+end
+return http

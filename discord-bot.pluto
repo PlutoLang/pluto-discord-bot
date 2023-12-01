@@ -27,6 +27,12 @@ local class DiscordChannelId
 	function sendTyping()
 		self.client:sendRequest("POST", $"/channels/{self.id}/typing")
 	end
+
+	function sendMessage(content)
+		self.client:sendRequest("POST", $"/channels/{self.id}/messages", {
+			["content"] = content
+		})
+	end
 end
 
 local class DiscordMessage
@@ -120,17 +126,22 @@ return class
 		scheduler.run()
 	end
 
-	function sendRequest(method, endpoint)
+	function sendRequest(method, endpoint, body)
 		endpoint = "https://discord.com/api/v10"..endpoint
 		print($"[HTTP] Sending {method} request to {endpoint}")
-		local response = http.request({
+		local options = {
 			["method"] = method,
 			["url"] = endpoint,
 			["headers"] = {
 				["Authorization"] = $"Bot {self.token}",
 				["User-Agent"] = "DiscordBot (Please momma no spaghetti)",
 			}
-		})
+		}
+		if body then
+			options.headers["Content-Type"] = "application/json"
+			options.body = json.encode(body)
+		end
+		local response = http.request(options)
 		if response ~= "" then
 			print($"[HTTP] Response: {response}")
 		end

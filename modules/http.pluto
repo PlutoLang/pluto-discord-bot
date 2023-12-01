@@ -8,12 +8,17 @@ function http.request(options)
 	local hr = soup.HttpRequest.new(options.url)
 	if options.method ~= "GET" then
 		assert(options.method == "POST")
-		hr:setPayload("")
+		if not options.body then
+			hr:setPayload("")
+		end
 	end
 	if options.headers then
 		for k, v in options.headers do
 			hr:addHeader(k, v)
 		end
+	end
+	if options.body then
+		hr:setPayload(options.body)
 	end
 	local hrt = soup.HttpRequestTask.newFromRequest(hr)
 	soup_scheduler:add(hrt)

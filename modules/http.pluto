@@ -6,7 +6,7 @@ function http.request(options)
 		}
 	end
 	local hr = soup.HttpRequest.new(options.url)
-	if options.method ~= "GET" then
+	if options.method and options.method ~= "GET" then
 		assert(options.method == "POST")
 		if not options.body then
 			hr:setPayload("")
@@ -18,6 +18,7 @@ function http.request(options)
 		end
 	end
 	if options.body then
+        assert(options.method == nil or options.method ~= "GET")
 		hr:setPayload(options.body)
 	end
 	local hrt = soup.HttpRequestTask.newFromRequest(hr)

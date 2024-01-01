@@ -5,10 +5,10 @@ soup = require "soup-apigen"
 
 package.path = ""
 package.cpath = ""
+http = require "http"
 json = require "json"
 
 package.path = "modules\\?.pluto"
-http = require "http"
 scheduler = require "scheduler"
 
 local heartbeater = require "discord-heartbeater"

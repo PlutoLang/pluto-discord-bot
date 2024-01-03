@@ -9,9 +9,6 @@ http = require "http"
 json = require "json"
 scheduler = require "scheduler"
 
-package.path = "modules\\?.pluto"
-local heartbeater = require "discord-heartbeater"
-
 soup_scheduler = soup.Scheduler.new()
 scheduler.addloop(function()
 	soup_scheduler:tick()
@@ -63,6 +60,21 @@ local function new_with_data(bot, clazz, data)
 		inst[k] = v
 	end
 	return inst
+end
+
+local heartbeater = {}
+heartbeater.last_sent = 0
+function heartbeater.kickOff(ws, interval)
+	scheduler.addloop(function()
+		if heartbeater.last_seq and os.millis() - heartbeater.last_sent > interval then
+			--print("sending heartbeat")
+			ws:wsSend(json.encode({
+				op = 1,
+				d = heartbeater.last_seq
+			}))
+			heartbeater.last_sent = os.millis()
+		end
+	end)
 end
 
 return class

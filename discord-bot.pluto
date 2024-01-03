@@ -7,10 +7,9 @@ package.path = ""
 package.cpath = ""
 http = require "http"
 json = require "json"
-
-package.path = "modules\\?.pluto"
 scheduler = require "scheduler"
 
+package.path = "modules\\?.pluto"
 local heartbeater = require "discord-heartbeater"
 
 soup_scheduler = soup.Scheduler.new()

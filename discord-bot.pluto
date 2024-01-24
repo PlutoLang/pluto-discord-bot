@@ -5,7 +5,7 @@ json = require "json"
 scheduler = require "scheduler"
 socket = require "socket"
 
-package.path = "modules\\?.pluto"
+package.path = "modules"..package.config:sub(1,1).."?.pluto"
 require "websocket"
 
 local class DiscordChannelId

@@ -80,14 +80,17 @@ local function wsRecvFrame(sock)
         sock:unrecv(data:sub(payload_len + 1))
         data = data:sub(1, payload_len)
     end
-    return data, fin
+    return opcode, data, fin
 end
 
 local function wsRecv(sock)
-    local data, fin = wsRecvFrame(sock)
+    local opcode, data, fin = wsRecvFrame(sock)
     while not fin do
-        local frame
-        frame, fin = wsRecvFrame(sock)
+        local _, frame
+        _, frame, fin = wsRecvFrame(sock)
+    end
+    if opcode == 8 then
+        error(data:sub(2))
     end
     return data
 end

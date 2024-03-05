@@ -20,7 +20,9 @@ local function wsUpgrade(sock, host, path = "/")
     return false
 end
 
-local function wsSend(sock, payload, opcode = 1)
+local function wsSend(sock, payload, binary)
+    local opcode = binary ? 2 : 1
+
     local data = {}
 
     data[#data + 1] = opcode | 0x80 -- fin

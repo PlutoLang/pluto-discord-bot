@@ -148,6 +148,22 @@ return class
 	function internal_runEventLoop(ws)
 		while true do
 			local data = ws:wsRecv()
+			if data == nil then
+				print("Broken pipe, attempting to reconnect and resume.")
+				self.heartbeater:stop()
+				ws = self.internal_openConnection()
+				ws:wsSend(json.encode({
+					op = 6,
+					d = {
+						token = self.token,
+						session_id = self.session_id,
+						seq = self.heartbeater.last_seq
+					}
+				}))
+				data = ws:wsRecv()
+				print(data)
+				self.heartbeater:start(ws, self.heartbeat_interval)
+			end
 			print(data)
 			data = json.decode(data)
 			if data.s then

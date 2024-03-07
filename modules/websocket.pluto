@@ -87,6 +87,9 @@ end
 
 local function wsRecv(sock)
     local opcode, data, fin = wsRecvFrame(sock)
+    if opcode == nil then
+        return nil
+    end
     while not fin do
         local _, frame
         _, frame, fin = wsRecvFrame(sock)

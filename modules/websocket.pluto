@@ -93,6 +93,7 @@ local function wsRecv(sock)
     while not fin do
         local _, frame
         _, frame, fin = wsRecvFrame(sock)
+        data ..= frame
     end
     if opcode == 8 then
         error(data:sub(3).." ("..string.unpack(">H", data)..")")

@@ -147,7 +147,12 @@ return class
 
 	function internal_runEventLoop(ws)
 		while true do
-			local data = ws:wsRecv()
+			local data
+			try
+				data = ws:wsRecv()
+			catch e then
+				print(e)
+			end
 			if data == nil then
 				print("Broken pipe, attempting to reconnect and resume.")
 				self.heartbeater:stop()

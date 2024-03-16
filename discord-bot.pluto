@@ -113,6 +113,15 @@ return class
 		self.token = token
 		self.scheduler:add(function()
 			local ws = self.internal_openConnection()
+			self.scheduler:add(function()
+				-- Keep HTTP connection warmed up to avoid latency when we need to fire a request
+				while true do
+					if not http.haveconnection("https://discord.com") then
+						print("Connecting to https://discord.com...")
+						http.request("https://discord.com/api/v10/gateway")
+					end
+				end
+			end)
 			local data = ws:wsRecv()
 			print(data)
 			self.heartbeat_interval = json.decode(data).d.heartbeat_interval

@@ -2,7 +2,7 @@ package.path = ""
 package.cpath = ""
 local http = require "http"
 local json = require "json"
-local scheduler = require "scheduler"
+local pluto_scheduler = require "scheduler"
 local socket = require "socket"
 
 package.path ..= package.config[3].."modules"..package.config[1].."?.pluto"
@@ -59,9 +59,9 @@ end
 local class Heartbeater
 	last_sent = 0
 
-	function start(ws, interval)
+	function start(scheduler, ws, interval)
 		self.ws = ws
-		scheduler.addloop(function()
+		scheduler:addloop(function()
 			if self.ws ~= ws then
 				return false
 			end
@@ -107,15 +107,16 @@ return class
 
 	private on_message = nil
 
-	function __construct(token)
+	function __construct(token, scheduler)
+		self.scheduler = scheduler ?? new pluto_scheduler()
 		self.heartbeater = new Heartbeater()
 		self.token = token
-		scheduler.add(function()
+		self.scheduler:add(function()
 			local ws = self.internal_openConnection()
 			local data = ws:wsRecv()
 			print(data)
 			self.heartbeat_interval = json.decode(data).d.heartbeat_interval
-			self.heartbeater:start(ws, self.heartbeat_interval)
+			self.heartbeater:start(self.scheduler, ws, self.heartbeat_interval)
 			ws:wsSend(json.encode({
 				op = 2,
 				d = {
@@ -167,7 +168,7 @@ return class
 				}))
 				data = ws:wsRecv()
 				print(data)
-				self.heartbeater:start(ws, self.heartbeat_interval)
+				self.heartbeater:start(self.scheduler, ws, self.heartbeat_interval)
 			end
 			print(data)
 			data = json.decode(data)
@@ -186,7 +187,7 @@ return class
 							if self.on_message then
 								local msg = new_with_data(self, DiscordMessage, data.d)
 								msg.channel = new DiscordChannelId(self, data.d.channel_id)
-								scheduler.add(function()
+								self.scheduler:add(function()
 									self.on_message(msg)
 								end)
 							end
@@ -207,7 +208,7 @@ return class
 					}))
 					data = ws:wsRecv()
 					print(data)
-					self.heartbeater:start(ws, self.heartbeat_interval)
+					self.heartbeater:start(self.scheduler, ws, self.heartbeat_interval)
 					break
 			end
 		end
@@ -217,8 +218,8 @@ return class
 		self.on_message = f
 	end
 
-	static function run()
-		scheduler.run()
+	function run()
+		self.scheduler:run()
 	end
 
 	function sendRequest(method, endpoint, body)

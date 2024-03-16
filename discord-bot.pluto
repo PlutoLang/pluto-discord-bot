@@ -1,11 +1,11 @@
 package.path = ""
 package.cpath = ""
-http = require "http"
-json = require "json"
-scheduler = require "scheduler"
-socket = require "socket"
+local http = require "http"
+local json = require "json"
+local scheduler = require "scheduler"
+local socket = require "socket"
 
-package.path = "modules"..package.config:sub(1,1).."?.pluto"
+package.path ..= package.config[3].."modules"..package.config[1].."?.pluto"
 require "websocket"
 
 local class DiscordChannelId

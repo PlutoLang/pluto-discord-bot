@@ -121,7 +121,7 @@ return class
 				op = 2,
 				d = {
 					token = token,
-					intents = GUILDS | GUILD_MEMBERS | GUILD_MESSAGES | MESSAGE_CONTENT,
+					intents = GUILDS | GUILD_MEMBERS | GUILD_MESSAGES | MESSAGE_CONTENT | DIRECT_MESSAGES,
 					properties = {
 						os = "linux",
 						browser = "pluto-discord-bot",

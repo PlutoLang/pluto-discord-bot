@@ -116,7 +116,7 @@ return class
 			self.scheduler:add(function()
 				-- Keep HTTP connection warmed up to avoid latency when we need to fire a request
 				while true do
-					if not http.haveconnection("https://discord.com") then
+					if not http.hasconnection("https://discord.com") then
 						print("Connecting to https://discord.com...")
 						http.request("https://discord.com/api/v10/gateway")
 					end

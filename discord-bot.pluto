@@ -25,6 +25,20 @@ local class DiscordChannelId
 	end
 end
 
+local class DiscordGuildId
+	__name = "DiscordGuildId"
+
+	function __construct(public client, public id)
+	end
+
+	function addBan(user_id, reason = "", delete_message_days = 0)
+		self.client:sendRequest("PUT", $"/guilds/{self.id}/bans/{user_id}", {
+			["__audit_log_reason"] = reason,
+			["delete_message_days"] = delete_message_days
+		})
+	end
+end
+
 local class DiscordMessage
 	__name = "DiscordMessage"
 
@@ -200,6 +214,9 @@ return class
 							if self.on_message then
 								local msg = new_with_data(self, DiscordMessage, data.d)
 								msg.channel = new DiscordChannelId(self, data.d.channel_id)
+								if data.d.guild_id then
+									msg.guild = new DiscordGuildId(self, data.d.guild_id)
+								end
 								self.scheduler:add(function()
 									self.on_message(msg)
 								end)
@@ -248,6 +265,10 @@ return class
 		}
 		if body then
 			options.headers["Content-Type"] = "application/json"
+			if body.__audit_log_reason then
+				options.headers["X-Audit-Log-Reason"] = body.__audit_log_reason
+				body.__audit_log_reason = nil
+			end
 			options.body = json.encode(body)
 		end
 		local response = http.request(options)

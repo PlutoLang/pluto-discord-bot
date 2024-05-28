@@ -21,6 +21,15 @@ Returned by `require "discord-bot"`.
 - `mfa_enabled`, ?bool, only present for own account (DiscordBot.user)
 - `discriminator`, string, "0" for most accounts nowadays
 
+### Guild
+
+**Properties:**
+- `id`, string
+- `client`, DiscordBot
+
+**Methods:**
+- `addBan(user_id: string, reason: string = "", delete_message_days: number = 0)`
+
 ### Channel
 
 **Properties:**
@@ -38,6 +47,7 @@ Returned by `require "discord-bot"`.
 - `author`, User
 - `channel`, Channel
 - `channel_id`, string
+- `guild`, ?Guild, absent for DMs
 - `guild_id`, ?string, absent for DMs
 - `id`, string
 - `client`, DiscordBot

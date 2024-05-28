@@ -45,6 +45,10 @@ local class DiscordMessage
 			}
 		})
 	end
+
+	function delete()
+		self.client:sendRequest("DELETE", $"/channels/{self.channel.id}/messages/{self.id}")
+	end
 end
 
 local function new_with_data(bot, clazz, data)

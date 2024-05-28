@@ -57,3 +57,4 @@ Returned by `require "discord-bot"`.
 **Methods:**
 - `mentionsMe(): bool`
 - `reply(content: string)`
+- `delete()`

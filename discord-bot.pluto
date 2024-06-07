@@ -161,8 +161,11 @@ return class
 	end
 
 	static function internal_openConnection()
-		print("Connecting to gateway.discord.gg...")
-		local ws = socket.connect("gateway.discord.gg", 443)
+		local ws
+		repeat
+			print("Connecting to gateway.discord.gg...")
+			ws = socket.connect("gateway.discord.gg", 443)
+		until ws ~= nil
 		if not ws:starttls("gateway.discord.gg") then
 			error("TLS handshake failed.")
 		end

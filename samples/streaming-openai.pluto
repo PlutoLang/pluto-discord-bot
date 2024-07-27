@@ -1,0 +1,104 @@
+local DISCORD_TOKEN = "YOUR_TOKEN_HERE"
+local OPENAI_TOKEN = "YOUR_TOKEN_HERE"
+
+local bot = new (require"discord-bot") (DISCORD_TOKEN)
+
+local { json, socket } = require "*"
+
+local function get_streamed_response(sched, content)
+    local resp = { done = false }
+    sched:add(function()
+        local s = socket.connect("api.openai.com", 443)
+        assert(s)
+        assert(s:starttls("api.openai.com"))
+        local body = json.encode{
+            model = "gpt-3.5-turbo",
+            messages = {
+                {
+                    role = "user",
+                    content = content
+                }
+            },
+            stream = true
+        }
+        s:send("POST /v1/chat/completions HTTP/1.0\r\n"
+            .. "Host: api.openai.com\r\n"
+            .. "User-Agent: pluto-discord-bot\r\n"
+            .. "Authorization: Bearer "..OPENAI_TOKEN.."\r\n"
+            .. "Content-Type: application/json\r\n"
+            .. "Content-Length: "..#body.."\r\n"
+            .. "\r\n"
+            .. body
+            )
+        local buf = ""
+        while chunk := s:recv() do
+            chunk = buf..chunk
+            local off = 1
+            while true do
+                off = chunk:find("data: ", off)
+                if not off then
+                    buf = ""
+                    break
+                end
+                local off2 = chunk:find("\n\n", off + 6)
+                if not off2 then
+                    buf = chunk:sub(off)
+                    break
+                end
+                local data = chunk:sub(off + 6, off2 - 1)
+                off = off2 + 2
+                if data == "[DONE]" then
+                    break 2
+                end
+                local delta = json.decode(data).choices[1].delta
+                if delta.content then
+                    resp:insert(delta.content)
+                end
+            end
+        end
+        resp.done = true
+    end)
+    return resp
+end
+
+local function streamed_response_to_string(streamed_response)
+    local str = streamed_response:concat("")
+    if not streamed_response.done then
+        str ..= " ..."
+    end
+    return str
+end
+
+bot:onMessage(function(msg)
+    if msg.author.bot then
+        return
+    end
+    local is_dm = not msg.guild_id
+    if is_dm or msg:mentionsMe() then
+        local streamed_response = get_streamed_response(bot.scheduler, msg.content)
+        local deadline = os.millis() + 2000 -- minimum initial wait
+        msg.channel:sendTyping()
+        while not streamed_response.done and (#streamed_response == 0 or deadline > os.millis()) do
+            coroutine.yield()
+        end
+        local current_content = streamed_response_to_string(streamed_response)
+        local resp = (is_dm ? (msg.channel:sendMessage(current_content)) : (msg:reply(current_content)))
+        while not streamed_response.done do
+            deadline = os.millis() + 1000 -- minimum wait between updates
+            while not streamed_response.done and deadline > os.millis() do
+                coroutine.yield()
+            end
+            local str = streamed_response_to_string(streamed_response)
+            if current_content ~= str then
+                current_content = str
+                resp:edit(str)
+            end
+        end
+        local str = streamed_response_to_string(streamed_response)
+        if current_content ~= str then
+            resp:edit(str)
+        end
+    end
+end)
+
+bot:run()

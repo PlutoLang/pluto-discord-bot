@@ -1,0 +1,60 @@
+local bot = new (require"discord-bot") ("YOUR_TOKEN_HERE")
+
+local function get_streamed_response(sched, content)
+    local resp = { done = false }
+    sched:add(function()
+        resp:insert("I")
+        coroutine.sleep(700)
+        resp:insert(" am")
+        coroutine.sleep(700)
+        resp:insert(" a")
+        coroutine.sleep(700)
+        resp:insert(" slow")
+        coroutine.sleep(700)
+        resp:insert(" response.")
+        resp.done = true
+    end)
+    return resp
+end
+
+local function streamed_response_to_string(streamed_response)
+    local str = streamed_response:concat("")
+    if not streamed_response.done then
+        str ..= " ..."
+    end
+    return str
+end
+
+bot:onMessage(function(msg)
+    if msg.author.bot then
+        return
+    end
+    local is_dm = not msg.guild_id
+    if is_dm or msg:mentionsMe() then
+        local streamed_response = get_streamed_response(bot.scheduler, msg.content)
+        local deadline = os.millis() + 1000 -- minimum initial wait
+        msg.channel:sendTyping()
+        while not streamed_response.done and (#streamed_response == 0 or deadline > os.millis()) do
+            coroutine.yield()
+        end
+        local current_content = streamed_response_to_string(streamed_response)
+        local resp = (is_dm ? (msg.channel:sendMessage(current_content)) : (msg:reply(current_content)))
+        while not streamed_response.done do
+            deadline = os.millis() + 1000 -- minimum wait between updates
+            while not streamed_response.done and deadline > os.millis() do
+                coroutine.yield()
+            end
+            local str = streamed_response_to_string(streamed_response)
+            if current_content ~= str then
+                resp:edit(str)
+                current_content = str
+            end
+        end
+        local str = streamed_response_to_string(streamed_response)
+        if current_content ~= str then
+            resp:edit(str)
+        end
+    end
+end)
+
+bot:run()

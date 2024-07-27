@@ -1,4 +1,4 @@
-local bot = new (require"discord-bot") ("YOUR TOKEN HERE")
+local bot = new (require"discord-bot") ("YOUR_TOKEN_HERE")
 
 bot:onMessage(function(msg)
 	if msg.author.bot then

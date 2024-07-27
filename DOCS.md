@@ -38,7 +38,7 @@ Returned by `require "discord-bot"`.
 
 **Methods:**
 - `sendTyping()`
-- `sendMessage(content: string)`
+- `sendMessage(content: string): Message`
 
 ### Message
 

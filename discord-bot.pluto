@@ -8,6 +8,17 @@ local socket = require "socket"
 package.path ..= package.config[3].."modules"..package.config[1].."?.pluto"
 require "websocket"
 
+local function new_with_data(bot, clazz, data)
+	local inst = new clazz()
+	inst.client = bot
+	for k, v in data do
+		inst[k] = v
+	end
+	return inst
+end
+
+local DiscordMessage
+
 local class DiscordChannelId
 	__name = "DiscordChannelId"
 
@@ -19,9 +30,15 @@ local class DiscordChannelId
 	end
 
 	function sendMessage(content)
-		self.client:sendRequest("POST", $"/channels/{self.id}/messages", {
+		local data = self.client:sendRequest("POST", $"/channels/{self.id}/messages", {
 			["content"] = content
 		})
+		local msg = new_with_data(self.client, DiscordMessage, data)
+		msg.channel = self
+		if data.guild_id then
+			msg.guild = new DiscordGuildId(self.client, data.guild_id)
+		end
+		return msg
 	end
 end
 
@@ -39,7 +56,7 @@ local class DiscordGuildId
 	end
 end
 
-local class DiscordMessage
+class DiscordMessage
 	__name = "DiscordMessage"
 
 	function mentionsMe()
@@ -63,15 +80,6 @@ local class DiscordMessage
 	function delete()
 		self.client:sendRequest("DELETE", $"/channels/{self.channel.id}/messages/{self.id}")
 	end
-end
-
-local function new_with_data(bot, clazz, data)
-	local inst = new clazz()
-	inst.client = bot
-	for k, v in data do
-		inst[k] = v
-	end
-	return inst
 end
 
 local class Heartbeater
@@ -278,5 +286,6 @@ return class
 		if response ~= "" then
 			print($"[HTTP] Response: {response}")
 		end
+		return json.decode(response)
 	end
 end

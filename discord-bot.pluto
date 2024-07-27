@@ -77,6 +77,12 @@ class DiscordMessage
 		})
 	end
 
+	function edit(content)
+		self.client:sendRequest("PATCH", $"/channels/{self.channel.id}/messages/{self.id}", {
+			["content"] = content
+		})
+	end
+
 	function delete()
 		self.client:sendRequest("DELETE", $"/channels/{self.channel.id}/messages/{self.id}")
 	end

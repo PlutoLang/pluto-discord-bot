@@ -69,12 +69,16 @@ class DiscordMessage
 	end
 
 	function reply(content)
-		self.client:sendRequest("POST", $"/channels/{self.channel.id}/messages", {
+		local data = self.client:sendRequest("POST", $"/channels/{self.channel.id}/messages", {
 			["content"] = content,
 			["message_reference"] = {
 				["message_id"] = self.id
 			}
 		})
+		local msg = new_with_data(self.client, DiscordMessage, data)
+		msg.channel = self.channel
+		msg.guild = self.guild
+		return msg
 	end
 
 	function edit(content)

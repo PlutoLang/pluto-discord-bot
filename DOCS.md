@@ -66,6 +66,6 @@ Returned by `require "discord-bot"`.
 
 **Methods:**
 - `mentionsMe(): bool`
-- `reply(content: string)`
+- `reply(content: string): Message`
 - `edit(content: string)`
 - `delete()`

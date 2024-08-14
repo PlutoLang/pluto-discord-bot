@@ -149,13 +149,6 @@ return class
 		self.token = token
 		self.scheduler:add(function()
 			local ws = self.internal_openConnection()
-			-- Keep HTTP connection warmed up to avoid latency when we need to fire a request
-			self.scheduler:addloop(function()
-				if not http.hasconnection("https://discord.com") then
-					print("Connecting to https://discord.com...")
-					http.request("https://discord.com/api/v10/gateway")
-				end
-			end)
 			local data = ws:wsRecv()
 			print(data)
 			self.heartbeat_interval = json.decode(data).d.heartbeat_interval
@@ -201,8 +194,11 @@ return class
 				print(e)
 			end
 			if data == nil then
-				print("Broken pipe, attempting to reconnect and resume.")
 				self.heartbeater:stop()
+				if not self.session_id then
+					return -- in this case, the error message probably was "Authentication failed. (4004)"
+				end
+				print("Broken pipe, attempting to reconnect and resume.")
 				ws = self.internal_openConnection()
 				ws:wsSend(json.encode({
 					op = 6,
@@ -225,6 +221,15 @@ return class
 				case 0: -- Dispatch
 					switch data.t do
 						case "READY":
+							if not self.session_id then -- Auth succeeded for first time?
+								-- Keep HTTP connection warmed up to avoid latency when we need to fire a request
+								self.scheduler:addloop(function()
+									if not http.hasconnection("https://discord.com") then
+										print("Connecting to https://discord.com...")
+										http.request("https://discord.com/api/v10/gateway")
+									end
+								end)
+							end
 							self.user = data.d.user
 							self.session_id = data.d.session_id
 							self.resume_gateway_url = data.d.resume_gateway_url

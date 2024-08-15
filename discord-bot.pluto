@@ -72,7 +72,8 @@ class DiscordMessage
 		local data = self.client:sendRequest("POST", $"/channels/{self.channel.id}/messages", {
 			["content"] = content,
 			["message_reference"] = {
-				["message_id"] = self.id
+				["message_id"] = self.id,
+				["fail_if_not_exists"] = false,
 			}
 		})
 		local msg = new_with_data(self.client, DiscordMessage, data)

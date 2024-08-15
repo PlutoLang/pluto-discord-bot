@@ -69,6 +69,7 @@ class DiscordMessage
 	end
 
 	function reply(content)
+		if not self.id then return end
 		local data = self.client:sendRequest("POST", $"/channels/{self.channel.id}/messages", {
 			["content"] = content,
 			["message_reference"] = {
@@ -82,12 +83,14 @@ class DiscordMessage
 	end
 
 	function edit(content)
+		if not self.id then return end
 		self.client:sendRequest("PATCH", $"/channels/{self.channel.id}/messages/{self.id}", {
 			["content"] = content
 		})
 	end
 
 	function delete()
+		if not self.id then return end
 		self.client:sendRequest("DELETE", $"/channels/{self.channel.id}/messages/{self.id}")
 	end
 end

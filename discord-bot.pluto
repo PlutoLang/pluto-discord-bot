@@ -54,6 +54,10 @@ local class DiscordGuildId
 			["delete_message_days"] = delete_message_days
 		})
 	end
+
+	function leave()
+		self.client:sendRequest("DELETE", $"/users/@me/guilds/{self.id}")
+	end
 end
 
 class DiscordMessage

@@ -29,6 +29,7 @@ Returned by `require "discord-bot"`.
 
 **Methods:**
 - `addBan(user_id: string, reason: string = "", delete_message_days: number = 0)`
+- `leave()`
 
 ### Channel
 

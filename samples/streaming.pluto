@@ -1,4 +1,8 @@
-local bot = new (require"discord-bot") ("YOUR_TOKEN_HERE")
+local DISCORD_TOKEN = "YOUR_TOKEN_HERE"
+
+package.path ..= package.config[3].."lib"..package.config[1].."?.pluto"
+
+local bot = new (require"discord-bot") (DISCORD_TOKEN)
 
 local function get_streamed_response(sched, content)
     local resp = { done = false }

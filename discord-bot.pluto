@@ -266,6 +266,21 @@ return class
 					print(data)
 					self.heartbeater:start(self.scheduler, ws, self.heartbeat_interval)
 					break
+				case 9: -- Invalid session
+					print("Remote says our session is invalid, sending identify.")
+					ws:wsSend(json.encode({
+						op = 2,
+						d = {
+							token = self.token,
+							intents = GUILDS | GUILD_MEMBERS | GUILD_MESSAGES | MESSAGE_CONTENT | DIRECT_MESSAGES,
+							properties = {
+								os = "linux",
+								browser = "pluto-discord-bot",
+								device = "pluto-discord-bot",
+							}
+						}
+					}))
+					break
 			end
 		end
 	end

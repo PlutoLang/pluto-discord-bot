@@ -136,6 +136,10 @@ local DIRECT_MESSAGE_REACTIONS <const> = (1 << 13)
 local DIRECT_MESSAGE_TYPING <const> = (1 << 14)
 local MESSAGE_CONTENT <const> = (1 << 15)
 local GUILD_SCHEDULED_EVENTS <const> = (1 << 16)
+local AUTO_MODERATION_CONFIGURATION <const> = (1 << 20)
+local AUTO_MODERATION_EXECUTION <const> = (1 << 21)
+local GUILD_MESSAGE_POLLS <const> = (1 << 24)
+local DIRECT_MESSAGE_POLLS <const> = (1 << 25)
 
 return class
 	__name = "DiscordBot"

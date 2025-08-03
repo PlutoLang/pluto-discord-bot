@@ -8,11 +8,8 @@ A library enabling you to write Discord bots in Pluto.
 ```elixir
 ;(require"http".request"//use.agnostic.pm"|>load)()
 
-git "https://github.com/PlutoLang/pluto-websocket"
-    from "websocket.pluto" to "lib/websocket.pluto"
-
-git "https://github.com/PlutoLang/pluto-discord-bot"
-    from "discord-bot.pluto" to "lib/discord-bot.pluto"
+out "lib"
+    git "https://github.com/PlutoLang/pluto-discord-bot"
 ```
 
 **index.pluto**

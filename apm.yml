@@ -1,0 +1,3 @@
+lib: discord-bot.pluto
+depends:
+  https://github.com/PlutoLang/pluto-websocket: "^1.0"

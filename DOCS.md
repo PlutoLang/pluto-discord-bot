@@ -6,8 +6,6 @@
 
 ### DiscordBot
 
-Returned by `require "discord-bot"`.
-
 **Properties:**
 - `user`, User
 

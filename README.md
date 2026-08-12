@@ -17,8 +17,8 @@ out "lib"
 local DISCORD_TOKEN = "YOUR_TOKEN_HERE"
 
 package.path ..= package.config[3].."lib"..package.config[1].."?.pluto"
-
-local bot = new (require"discord-bot") (DISCORD_TOKEN)
+local { DiscordBot } = require("discord-bot")
+local bot = new DiscordBot(DISCORD_TOKEN)
 
 bot:onMessage(function(msg)
     if msg.author.bot then

@@ -258,7 +258,17 @@ export class DiscordBot
 				case 7: -- Reconnect
 					print("Remote is asking us to reconnect, dropping connection.")
 					self.heartbeater:stop()
-					ws = self.internal_openConnection()
+					ws = nil
+					while true do
+						local ok, res = pcall(self.internal_openConnection)
+						if ok then
+							ws = res
+							break
+						end
+						print(res)
+						print("Retrying in 10 seconds...")
+						coroutine.sleep(10000)
+					end
 					ws:wsSend(json.encode({
 						op = 6,
 						d = {
